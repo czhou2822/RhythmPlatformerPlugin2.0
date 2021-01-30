@@ -324,8 +324,8 @@ void URPPUtility::RawDrawArrayToDrawArray(float CurrentCursor)
 	int LeftIndex = Left / AudioDuration * DataDrawArray.Num();
 	int RightIndex = Right / AudioDuration * DataDrawArray.Num();
 
-	FMath::Clamp<int>(LeftIndex, 0, DataDrawArray.Num()-1);
-	FMath::Clamp<int>(RightIndex, 0, DataDrawArray.Num()-1);
+	LeftIndex = FMath::Clamp<int>(LeftIndex, 0, DataDrawArray.Num()-1);
+	RightIndex = FMath::Clamp<int>(RightIndex, 0, DataDrawArray.Num()-1);
 
 
 	float LineStepSize = (WidgetWidth - XCord) / (RightIndex - LeftIndex); //
