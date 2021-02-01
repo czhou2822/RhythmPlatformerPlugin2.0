@@ -90,10 +90,10 @@ void SRPPMain::Tick(const FGeometry& AllottedGeometry, const double InCurrentTim
 			}
 
 			SnaplineCursor = (AudioPercentage * URPPUtility::DataDrawArray.Num());
-			//UE_LOG(LogTemp, Warning, TEXT("ViewLocationX: %.02f"), EditorViewportClient->GetViewLocation().X);
-			//UE_LOG(LogTemp, Warning, TEXT("AudioCursor: %.02f"), AudioCursor);
-			//UE_LOG(LogTemp, Warning, TEXT("AudioPercentage: %.02f"), AudioPercentage);
-			//UE_LOG(LogTemp, Warning, TEXT("SnaplineCursor: %i"), SnaplineCursor);
+			//UE_LOG(LogRPP, Warning, TEXT("ViewLocationX: %.02f"), EditorViewportClient->GetViewLocation().X);
+			//UE_LOG(LogRPP, Warning, TEXT("AudioCursor: %.02f"), AudioCursor);
+			//UE_LOG(LogRPP, Warning, TEXT("AudioPercentage: %.02f"), AudioPercentage);
+			//UE_LOG(LogRPP, Warning, TEXT("SnaplineCursor: %i"), SnaplineCursor);
 			UpdateCamaraLookAt();
 		}
 	}
@@ -122,10 +122,6 @@ void SRPPMain::UpdateCamaraLookAt()
 
 		EditorViewportClient->SetViewLocation(FVector(CameraStartingLocation.X + Delta, newLookAt.Y, newLookAt.Z));
 
-		//if (RPPMainCanvas)
-		//{
-		//	RPPMainCanvas->SetSnapLine();
-		//}
 
 	}
 }
@@ -135,19 +131,36 @@ void SRPPMain::HandleOnAudioPlaybackPercentNative(const UAudioComponent* InAudio
 	//this API returns the playback percent SINCE LAST PLAY/PAUSE
 	//e.g. the playback percent resets to 0 whenever paused
 
-	if (!InAudioComponent->bIsPaused)    //
-	{
-		AudioPercentage = PlaybackPercent + LastPausePercentage;
-		AudioCursor = AudioPercentage * AudioDuration;
-	}
-	else
+	//if (InAudioComponent->bIsPaused)    //while audio is paused
+	//{
+	//	LastPausePercentage = AudioPercentage;
+	//}
+	//else
+	//{
+	//	AudioPercentage = PlaybackPercent + LastPausePercentage;
+	//	AudioCursor = AudioPercentage * AudioDuration;
+	//}
+
+	//float PlaybackTime = AudioPercentage * AudioDuration;
+	//float PlayerLocation = PlaybackTime * (float)RPPPluginManager->RunningSpeed;
+	//UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
+
+
+	if (InAudioComponent->bIsPaused)    //while audio is paused
 	{
 		LastPausePercentage = AudioPercentage;
 	}
+	else
+	{
+		AudioPercentage = PlaybackPercent /*+ LastPausePercentage*/;
+		AudioCursor = AudioPercentage * AudioDuration;
+	}
 
-	//float PlaybackTime = AudioPercentage * AudioDuration;
-	//float PlayerLocation = PlaybackTime * (float)PlayerRunningSpeed;
-	//UE_LOG(LogTemp, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
+	float PlaybackTime = AudioPercentage * AudioDuration;
+	float PlayerLocation = PlaybackTime * (float)RPPPluginManager->RunningSpeed;
+	UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
+
+
 }
 
 void SRPPMain::ChangePlaybackSpeed(float InFloat)
