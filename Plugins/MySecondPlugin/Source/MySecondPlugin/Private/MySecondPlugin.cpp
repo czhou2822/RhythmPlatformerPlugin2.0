@@ -8,7 +8,7 @@
 #include "IAssetViewport.h"
 #include "LevelEditor.h"
 
-static const FName MySecondPluginTabName("MySecondPlugin");
+static const FName MySecondPluginTabName("RPP");
 
 DEFINE_LOG_CATEGORY(LogRPP);
 

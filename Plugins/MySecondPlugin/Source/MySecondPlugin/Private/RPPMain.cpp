@@ -158,7 +158,7 @@ void SRPPMain::HandleOnAudioPlaybackPercentNative(const UAudioComponent* InAudio
 
 	float PlaybackTime = AudioPercentage * AudioDuration;
 	float PlayerLocation = PlaybackTime * (float)RPPPluginManager->RunningSpeed;
-	UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
+	//UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
 
 
 }

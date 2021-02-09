@@ -1,8 +1,8 @@
 {
 	"FileVersion": 3,
-	"Version": 1,
-	"VersionName": "1.0",
-	"FriendlyName": "MySecondPlugin",
+	"Version": 0.9,
+	"VersionName": "0.9",
+	"FriendlyName": "RPP",
 	"Description": "",
 	"Category": "Other",
 	"CreatedBy": "",
@@ -13,16 +13,22 @@
 	"CanContainContent": false,
 	"IsBetaVersion": false,
 	"Installed": true,
+
+	"EngineVersion" : "4.26.0",
 	"Modules": [
 		{
 			"Name": "MySecondPlugin",
 			"Type": "Editor",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [ "Win64", "Win32"],
+			"BlacklistPlatforms": [ "Mac", "IOS", "Android" ]
 		},
 		{
 			"Name": "RPPGameModule",
 			"Type": "Runtime",
-			"LoadingPhase": "Default"
+			"LoadingPhase": "Default",
+			"WhitelistPlatforms": [ "Win64", "Win32"],
+			"BlacklistPlatforms": [ "Mac", "IOS", "Android" ]
 		}
 	]
 }

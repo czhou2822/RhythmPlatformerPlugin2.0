@@ -22,5 +22,9 @@
 			"Name": "MySecondPlugin",
 			"Enabled": true
 		}
+	],
+	"TargetPlatforms": [
+		"WindowsNoEditor",
+		"WindowsNoEditorWin32"
 	]
 }

@@ -6,7 +6,7 @@
 
 void FMySecondPluginCommands::RegisterCommands()
 {
-	UI_COMMAND(PluginAction, "MySecondPlugin", "Execute MySecondPlugin action", EUserInterfaceActionType::Button, FInputGesture());
+	UI_COMMAND(PluginAction, "RPP", "Execute MySecondPlugin action", EUserInterfaceActionType::Button, FInputGesture());
 }
 
 #undef LOCTEXT_NAMESPACE
