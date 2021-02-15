@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Chenkai Zhou. All Rights Reserved.
+
 
 
 //engine includes
@@ -11,7 +12,6 @@
 #include "RPPMain.h"
 #include "RPPGameModule/Public/RPPPluginManager.h"
 
-#include "MySecondPluginManager.h"
 
 
 BEGIN_SLATE_FUNCTION_BUILD_OPTIMIZATION

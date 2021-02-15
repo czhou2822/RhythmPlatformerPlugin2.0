@@ -1,9 +1,9 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+// Copyright Chenkai Zhou. All Rights Reserved.
+
 
 #pragma once
 
 #include "CoreMinimal.h"
-#include "SMyCompoundWidget.h"
 #include "RPPMain.h"
 #include "Modules/ModuleManager.h"
 
@@ -20,7 +20,6 @@ public:
 	virtual void StartupModule() override;
 	virtual void ShutdownModule() override;
 
-//	TSharedPtr<SMyCompoundWidget> MyCompoundWidget;
 	TSharedPtr<SRPPMain> RPPMain;
 
 	/** This function will be bound to Command. */

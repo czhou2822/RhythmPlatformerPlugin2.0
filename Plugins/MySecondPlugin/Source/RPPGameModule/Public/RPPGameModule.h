@@ -1,3 +1,6 @@
+// Copyright Chenkai Zhou. All Rights Reserved.
+
+
 #pragma once
  
 #include "Modules/ModuleManager.h"

@@ -1,4 +1,4 @@
-// Copyright 1998-2019 Epic Games, Inc. All Rights Reserved.
+// Copyright Chenkai Zhou. All Rights Reserved.
 
 #include "MySecondPlugin.h"
 #include "MySecondPluginStyle.h"
@@ -59,28 +59,6 @@ void FMySecondPluginModule::ShutdownModule()
 
 void FMySecondPluginModule::PluginButtonClicked()
 {
-	//if (!bSMyWidgetInitilized)
-	//{
-	//	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
-	//	//TSharedPtr<ILevelViewport> MyILevelViewport = LevelEditorModule.GetFirstActiveViewport();
-	//	MyCompoundWidget = SNew(SMyCompoundWidget);
-
-	//	LevelEditorModule.GetFirstActiveViewport()->AddOverlayWidget(MyCompoundWidget.ToSharedRef());
-	//	bSMyWidgetInitilized = true;
-	//}
-
-
-	//if (bPluginIsActivated == false)
-	//{
-	//	MyCompoundWidget->SetVisibility(EVisibility::SelfHitTestInvisible);
-	//	bPluginIsActivated = true;
-	//}
-	//else
-	//{
-	//	MyCompoundWidget->SetVisibility(EVisibility::Hidden);
-	//	bPluginIsActivated = false;
-	//}
-	//UE_LOG(LogTemp, Warning, TEXT("IsActivated: %s"), bPluginIsActivated ? "1" : "0");
 
 	FLevelEditorModule& LevelEditorModule = FModuleManager::LoadModuleChecked<FLevelEditorModule>("LevelEditor");
 
@@ -88,8 +66,6 @@ void FMySecondPluginModule::PluginButtonClicked()
 	int32 Width = GEditor->GetActiveViewport()->GetSizeXY().X;
 
 	int32 Height = GEditor->GetActiveViewport()->GetSizeXY().Y;
-
-//	UE_LOG(LogTemp, Warning, TEXT("Width: %i, Height: %i"), Width, Height);
 
 	if (RPPMain == nullptr)
 	{

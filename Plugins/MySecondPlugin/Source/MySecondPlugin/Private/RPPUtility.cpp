@@ -1,4 +1,4 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Chenkai Zhou. All Rights Reserved.
 
 #include "RPPUtility.h"
 
@@ -7,14 +7,9 @@
 #include "Engine/World.h"
 
 
-#include "MySecondPluginTextRW.h"
-#include "MySecondPluginTimestamp.h"
-#include "MySecondPluginManager.h"
 
 #include "RPPGameModule/Public/RPPPluginManager.h"
 #include "RPPGameModule/Public/RPPEventBase.h"
-
-
 
 
 TArray<float> URPPUtility::DataRawArray;    //Raw data from wave file   
@@ -24,11 +19,7 @@ TArray<FVector2D> URPPUtility::DrawArray;	//DrawArray
 TArray<float> URPPUtility::BeatRawArray{ 0.f, 1.f, 2.f, 3.f, 4.f,5.f, 6.f, 7.f, 8.f, 9.f, 10.f };    //Raw beat info; elements in second. for example, if BPM = 60, it shoud be [0,1,2,3,4,5...]
 TArray<FVector2D> URPPUtility::BeatDrawArray;	//BeatArray
 
-UMySecondPluginTextRW* URPPUtility::MySecondPluginTextRW = nullptr;
-
 FEditorViewportClient* URPPUtility::EditorViewportClient = nullptr;
-
-//AMySecondPluginManager* URPPUtility::MySecondPluginManager = nullptr;
 
 int32 URPPUtility::WidgetHeight = 0;
 
@@ -45,7 +36,6 @@ UWorld* URPPUtility::World = nullptr;
 
 URPPUtility::URPPUtility()
 {
-	URPPUtility::MySecondPluginTextRW = NewObject<UMySecondPluginTextRW>();
 
 	if (GetWorld())
 	{
@@ -156,8 +146,6 @@ void URPPUtility::RawDataArrayToRawDrawArray(int BucketSize)
 	}
 
 
-	//float YScale = BorderHeight / (2 * AbsMax);
-
 	float YScale = WidgetHeight / (2 * AbsMax);
 
 	for (int i = 0; i < NumberOfBuckets; i++)
@@ -178,117 +166,6 @@ void URPPUtility::RawDataArrayToRawDrawArray(int BucketSize)
 
 
 }
-
-
-///**
-// Extract raw data from RawDataArray and put them into TArray<float> for drawing
-// @param InputArray, the RawDataArray from USoundWave
-// @param SampleCount, how many samples to draw. For example, If InputArray contains 20K samples,
-// putting 10k at this para will only draw half of the waveform of the file
-// @param BucketSize, we only push the absolute max value in the bucket into the DrawArray.
-// Therefore, by default, the size of DrawArray is (InputArray.size()/200)
-//*/
-//void URPPUtility::RawDrawArrayToDrawArray(int Start, const int End)
-//{
-//	//get # of steps
-//	//take the peak value of each bucket
-//	//add to array
-//	/*
-//	This function serves as a moving window of deciding what's shown on the screen, picking the "window" section out of RawDrawArray
-//	if (header-start)<0 -> window is larger than default
-//	if (header-start)>0  &&  if (end+tail)<InArray.num() -> still going
-//
-//	if (end+tail)>InArray.num() -> fill default
-//
-//	//Todo: is it possible to change the pointer to the array instead of rewritting the array every frame?
-//
-//	*/
-//
-//	
-//
-//	DrawArray.Empty();
-//	int ArrayIndex = Start;										 //starting point of the InArray
-//	int Steps = 1;												//how many steps has been taken. This process always take NUMBER_OF_LINES_IN_WINDOW steps
-//	int NumberOfSteps = NUMBER_OF_LINES_IN_WINDOW;
-//	//float YOffset = Padding + BorderHeight / 2.f;				//default Y position, horizontal line
-//
-//	float YOffset = 0.f;				//default Y position, horizontal line
-//
-//	float XCord = 0.f;										//X  starting cord   //Todo, just change Y, leave X
-//
-//	float XIncrement = (float)WidgetWidth / NumberOfSteps;
-//
-//	int Header = NUMBER_OF_LINES_IN_WINDOW / 2;
-//	int Tail = NUMBER_OF_LINES_IN_WINDOW / 2;
-//
-//	EDrawType NextDrawType = EDrawType::Header;
-//
-//	int HeadNeeded = Header - Start;
-//	if (HeadNeeded >= 0)
-//	{
-//		ArrayIndex = 0;
-//	}
-//	else
-//	{
-//		NextDrawType = EDrawType::Data;
-//		ArrayIndex = ArrayIndex - NumberOfSteps / 2;
-//		if (ArrayIndex < 0) ArrayIndex = 0;
-//	}
-//
-//
-//
-//	while (Steps < NumberOfSteps)
-//	{
-//		float YTemp = YOffset;
-//		switch (NextDrawType)
-//		{
-//		case EDrawType::Data:
-//		{
-//			/*
-//			if array index in range, fill
-//			else mark next as footer and break;
-//			*/
-//
-//			if (ArrayIndex > DataDrawArray.Num() - 1)
-//			{
-//				NextDrawType = EDrawType::Footer;
-//				break;
-//			}
-//
-//			YTemp = DataDrawArray[ArrayIndex];
-//			ArrayIndex++;
-//			break;
-//		}
-//		case EDrawType::Header:
-//		{
-//			/*
-//			if (headneeded<0), break, nexttype = data
-//			else fill head, headneede--;
-//			*/
-//			if (HeadNeeded <= 0)
-//			{
-//				NextDrawType = EDrawType::Data;
-//				break;
-//			}
-//			else
-//			{
-//				HeadNeeded--;
-//			}
-//			break;
-//		}
-//		case EDrawType::Footer:
-//		{
-//			/*
-//			fill tail, the while take cares of ending condition
-//			*/
-//			break;
-//		}
-//		}
-//		DrawArray.Add(FVector2D(XCord, YTemp));
-//		XCord += XIncrement;
-//		Steps++;
-//	}
-//}
 
 
 void URPPUtility::RawDrawArrayToDrawArray(float CurrentCursor)
@@ -349,10 +226,10 @@ calculatess beat array. e.g. if bpm = 60. BeatRawArray = {0,1,2,3 ...}
 */
 void URPPUtility::CalculateRawBeatArray(const float& InBPM, const float& InAudioDuration, const float& InBeatStartingTime)
 {
+	URPPUtility::BeatRawArray.Empty();
+
 	if (InBPM)
 	{
-		URPPUtility::BeatRawArray.Empty();
-
 		URPPUtility::BeatRawArray.Add(0.f);
 
 		URPPUtility::AudioDuration = InAudioDuration;
@@ -369,81 +246,6 @@ void URPPUtility::CalculateRawBeatArray(const float& InBPM, const float& InAudio
 	}
 
 	return;
-}
-
-void URPPUtility::LoadLevel()
-{
-	FString outString;
-	MySecondPluginTextRW->LoadLevelInfo(TEXT("test.txt"), outString);
-}
-
-void URPPUtility::SaveLevel()
-{
-	MySecondPluginTextRW->SaveLevelInfo("test.txt");
-}
-
-//void URPPUtility::AddTimestamp(float InAudioCursor)
-//{
-//	if (EditorViewportClient)
-//	{
-//		AMySecondPluginTimestamp* newTimeStamp = EditorViewportClient->GetWorld()->SpawnActor<AMySecondPluginTimestamp>(FVector(EditorViewportClient->GetViewLocation().X, 0, EditorViewportClient->GetViewLocation().Z), FRotator::ZeroRotator);
-//
-//		FPlatformerEvent NewEvent;
-//		NewEvent.EventUniqueID = newTimeStamp->GetUniqueID();
-//		NewEvent.EventTime = InAudioCursor;
-//
-//		MySecondPluginTextRW->AddEvent(NewEvent);
-//	}
-//
-//}
-
-void URPPUtility::AddTimestamp(ARPPEventBase* InPluginTimestamp)
-{
-	if (InPluginTimestamp)
-	{
-		if (InPluginTimestamp->GetActorLocation().IsZero())
-		{
-			return;
-		}
-
-
-		FPlatformerEvent NewEvent;
-		NewEvent.EventUniqueID = InPluginTimestamp->GetUniqueID();
-		NewEvent.EventTime = WorldSpaceToAudioCursor(InPluginTimestamp->GetActorLocation(), URPPUtility::World);
-
-		UE_LOG(LogTemp, Warning, TEXT("EventTime: %s"), *FString::SanitizeFloat(NewEvent.EventTime, 2));
-
-		MySecondPluginTextRW->AddEvent(NewEvent);
-		return;
-
-	}
-}
-
-//void URPPUtility::AddTimestamp(class AMySecondPluginTimestamp* InPluginTimestamp, UWorld* InWorld)
-//{
-//	if (InPluginTimestamp)
-//	{
-//		if (InPluginTimestamp->GetActorLocation().IsZero())
-//		{
-//			return;
-//		}
-//
-//
-//		FPlatformerEvent NewEvent;
-//		NewEvent.EventUniqueID = InPluginTimestamp->GetUniqueID();
-//		NewEvent.EventTime = WorldSpaceToAudioCursor(InPluginTimestamp->GetActorLocation(), URPPUtility::World);
-//
-//		UE_LOG(LogTemp, Warning, TEXT("EventTime: %s"), *FString::SanitizeFloat(NewEvent.EventTime, 2));
-//
-//		MySecondPluginTextRW->AddEvent(NewEvent);
-//		return;
-//
-//	}
-//}
-
-void URPPUtility::DeleteTimestamp(int32 InEventID)
-{
-	MySecondPluginTextRW->DeleteEvent(InEventID);
 }
 
 float URPPUtility::WorldSpaceToAudioCursor(FVector InLocation, UWorld* InWorld)
@@ -464,54 +266,6 @@ float URPPUtility::WorldSpaceToAudioCursor(FVector InLocation, UWorld* InWorld)
 
 }
 
-//void URPPUtility::SetPluginManager(AMySecondPluginManager* InMySecondPluginManager)
-//{
-//	MySecondPluginManager = InMySecondPluginManager;
-//}
-//
-//void URPPUtility::RefreshRunSpeed(UWorld* InWorld, AMySecondPluginManager* InPluginManager)
-//{
-//	//UE_LOG(LogTemp, Warning, TEXT("Running Speed: %s. "), *FString::SanitizeFloat(PluginManagerObject->RunningSpeed));
-//
-//	//UE_LOG(LogTemp, Warning, TEXT("Running Speed: %d. "), MySecondPluginTextRW->EventMemo.Num());
-//
-//	if (World)
-//	{
-//		TSubclassOf<AMySecondPluginTimestamp> classToFind;
-//		classToFind = AMySecondPluginTimestamp::StaticClass();
-//		TArray<AActor*> FoundMarkers;
-//		UGameplayStatics::GetAllActorsOfClass(World, classToFind, FoundMarkers);
-//
-//
-//		for (auto& TmpEvent : MySecondPluginTextRW->EventMemo)
-//		{
-//
-//			FActorSpawnParameters SpawnParms;
-//			FVector SpawnLocation = FVector(TmpEvent.Value.EventTime * InPluginManager->RunningSpeed, 0, 0);
-//
-//			bool bIsActorFound = false;
-//			for (AActor* SingleActor : FoundMarkers)
-//			{
-//				if (SingleActor->GetUniqueID() == TmpEvent.Value.EventUniqueID)
-//				{
-//					SpawnLocation.Z = SingleActor->GetActorLocation().Z;
-//
-//					SingleActor->SetActorLocation(SpawnLocation);
-//					FoundMarkers.Remove(SingleActor);
-//					bIsActorFound = true;
-//					break;
-//				}
-//			}
-//			if (!bIsActorFound)
-//			{
-//				AMySecondPluginTimestamp* newTimeStamp = URPPUtility::World->
-//					SpawnActor<AMySecondPluginTimestamp>(SpawnLocation, FRotator::ZeroRotator, SpawnParms);
-//			}
-//		}
-//	}
-//
-//}
-
 void URPPUtility::RefreshRunSpeed()
 {
 	if (URPPUtility::World && URPPUtility::RPPPluginManager)
@@ -521,14 +275,6 @@ void URPPUtility::RefreshRunSpeed()
 		TArray<AActor*> FoundMarkers;
 		UGameplayStatics::GetAllActorsOfClass(World, classToFind, FoundMarkers);
 
-
-		//for (auto& TmpEvent : MySecondPluginTextRW->EventMemo)
-		//{
-
-		//	FActorSpawnParameters SpawnParms;
-		//	FVector SpawnLocation = FVector(TmpEvent.Value.EventTime * URPPUtility::RPPPluginManager->RunningSpeed, 0, 0);
-
-		//	bool bIsActorFound = false;
 		FVector SpawnLocation = FVector(0, 0, 0);
 		for (AActor* SingleActor : FoundMarkers)
 		{
@@ -543,12 +289,7 @@ void URPPUtility::RefreshRunSpeed()
 			}
 				
 		}
-			//we want to ignore ghost actors
-			//if (!bIsActorFound)
-			//{
-			//	AMySecondPluginTimestamp* newTimeStamp = URPPUtility::World->
-			//		SpawnActor<AMySecondPluginTimestamp>(SpawnLocation, FRotator::ZeroRotator, SpawnParms);
-			//}
+
 	}
 }
 
@@ -561,7 +302,6 @@ void URPPUtility::ClearEverything()
 	URPPUtility::BeatRawArray.Empty();    
 	URPPUtility::BeatDrawArray.Empty();	
 
-	URPPUtility::MySecondPluginTextRW = nullptr;
 
 	URPPUtility::EditorViewportClient = nullptr;
 
@@ -588,24 +328,10 @@ void URPPUtility::SetRPPPluginManager(ARPPPluginManager* InRPPPluginManager)
 	if (InRPPPluginManager)
 	{
 		URPPUtility::RPPPluginManager = InRPPPluginManager;
-		InRPPPluginManager->OnRPPEventPlaced.AddStatic(&URPPUtility::HandleOnEventPlaced);
-		InRPPPluginManager->OnRPPEventRemoved.AddStatic(&URPPUtility::DeleteTimestamp);
+
 	}
 }
 
-void URPPUtility::HandleOnEventPlaced(AActor* InActor)
-{
-	if (InActor)
-	{
-		ARPPEventBase* NewEventBase = Cast< ARPPEventBase>(InActor);
-		if (NewEventBase)
-		{
-			AddTimestamp(NewEventBase);
-		}
-	}
-}
 
-void URPPUtility::HandleOnEventRemoved(int32 InEventID)
-{
 
-}
+

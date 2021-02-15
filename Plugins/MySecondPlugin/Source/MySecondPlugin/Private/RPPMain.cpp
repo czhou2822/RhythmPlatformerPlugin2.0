@@ -1,4 +1,5 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Chenkai Zhou. All Rights Reserved.
+
 
 #include "RPPMain.h"
 
@@ -13,7 +14,6 @@
 #include "RPPGameModule/Public/RPPPluginManager.h"
 #include "MySecondPlugin.h"
 #include "RPPUtility.h"
-#include "MySecondPluginManager.h"
 
 
 
@@ -50,15 +50,6 @@ void SRPPMain::Construct(const FArguments& InArgs)
 			]
 		];
 
-	//if (RPPMainCanvas)
-	//{
-	//	if (RPPMainCanvas->RPPWaveformCanvas)
-	//	{
-	//		FVector2D WidgetSize = RPPMainCanvas->RPPWaveformCanvas->GetTickSpaceGeometry().GetAbsoluteSize();
-	//		UE_LOG(LogTemp, Warning, TEXT("Width: %i, Height: %i"), WidgetSize.X, WidgetSize.Y);
-
-	//	}
-	//}
 
 
 	Initilization();
@@ -90,10 +81,7 @@ void SRPPMain::Tick(const FGeometry& AllottedGeometry, const double InCurrentTim
 			}
 
 			SnaplineCursor = (AudioPercentage * URPPUtility::DataDrawArray.Num());
-			//UE_LOG(LogRPP, Warning, TEXT("ViewLocationX: %.02f"), EditorViewportClient->GetViewLocation().X);
-			//UE_LOG(LogRPP, Warning, TEXT("AudioCursor: %.02f"), AudioCursor);
-			//UE_LOG(LogRPP, Warning, TEXT("AudioPercentage: %.02f"), AudioPercentage);
-			//UE_LOG(LogRPP, Warning, TEXT("SnaplineCursor: %i"), SnaplineCursor);
+
 			UpdateCamaraLookAt();
 		}
 	}
@@ -131,19 +119,6 @@ void SRPPMain::HandleOnAudioPlaybackPercentNative(const UAudioComponent* InAudio
 	//this API returns the playback percent SINCE LAST PLAY/PAUSE
 	//e.g. the playback percent resets to 0 whenever paused
 
-	//if (InAudioComponent->bIsPaused)    //while audio is paused
-	//{
-	//	LastPausePercentage = AudioPercentage;
-	//}
-	//else
-	//{
-	//	AudioPercentage = PlaybackPercent + LastPausePercentage;
-	//	AudioCursor = AudioPercentage * AudioDuration;
-	//}
-
-	//float PlaybackTime = AudioPercentage * AudioDuration;
-	//float PlayerLocation = PlaybackTime * (float)RPPPluginManager->RunningSpeed;
-	//UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
 
 
 	if (InAudioComponent->bIsPaused)    //while audio is paused
@@ -203,29 +178,6 @@ void SRPPMain::Initilization()
 		UWorld* World = EditorViewportClient->GetWorld();
 		if (World)
 		{
-			//TArray<AActor*> foundManager;
-			//UGameplayStatics::GetAllActorsOfClass(World, AMySecondPluginManager::StaticClass(), foundManager);
-
-			//if (foundManager.Num() == 1)
-			//{
-			//	PluginManagerObject = Cast<AMySecondPluginManager>(foundManager[0]);
-			//	//plugin manager related settings 
-			//	if (PluginManagerObject)
-			//	{
-			//		SoundWave = (USoundWave*)PluginManagerObject->PluginAudioPlayer->Sound;
-			//		if (SoundWave)
-			//		{
-			//			AudioDuration = SoundWave->Duration;
-			//			AudioComponent = PluginManagerObject->PluginAudioPlayer;
-			//			AudioComponent->SetPaused(true);
-			//			AudioComponent->OnAudioPlaybackPercentNative.AddSP(this, &SRPPMain::HandleOnAudioPlaybackPercentNative);
-			//			ProcessSoundWave();
-			//		}
-			//		ResetViewport();
-			//	}
-			//}
-
-
 
 			TArray<AActor*> foundManager;
 			UGameplayStatics::GetAllActorsOfClass(World, ARPPPluginManager::StaticClass(), foundManager);
@@ -264,7 +216,6 @@ void SRPPMain::ProcessSoundWave()
 		URPPUtility::SetDataRawArray(SoundWave);
 		URPPUtility::CalculateRawBeatArray(RPPPluginManager->BPM, SoundWave->Duration, RPPPluginManager->BeatStartingTime);
 		URPPUtility::SetEditorViewportClient(EditorViewportClient);
-//		URPPUtility::SetPluginManager(PluginManagerObject);
 
 		URPPUtility::SetRPPPluginManager(RPPPluginManager);
 

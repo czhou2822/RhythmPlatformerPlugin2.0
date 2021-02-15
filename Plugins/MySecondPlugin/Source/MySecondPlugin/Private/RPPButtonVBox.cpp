@@ -1,6 +1,7 @@
-// Fill out your copyright notice in the Description page of Project Settings.
-#include "RPPButtonVBox.h"
+// Copyright Chenkai Zhou. All Rights Reserved.
 
+
+#include "RPPButtonVBox.h"
 #include "EditorViewportClient.h"
 
 
@@ -42,57 +43,6 @@ void SRPPButtonVBox::Construct(const FArguments& InArgs)
 					.Text(FText::FromString(TEXT("Reset")))
 				]
 			]
-
-			//+ SVerticalBox::Slot()   //Mark button
-			//.VAlign(VAlign_Top)
-			//.HAlign(HAlign_Left)
-			//[
-			//	SNew(SButton)
-			//	.OnClicked(this, &SRPPButtonVBox::MarkTimeStamp)
-			//	.Content()
-			//	[
-			//		SNew(STextBlock)
-			//		.Text(FText::FromString(TEXT("Mark")))
-			//	]
-			//]
-
-			//+ SVerticalBox::Slot()   //Setstarting button
-			//.VAlign(VAlign_Top)
-			//.HAlign(HAlign_Left)
-			//[
-			//	SNew(SButton)
-			//	.Content()
-			//	[
-			//		SNew(STextBlock)
-			//		.Text(FText::FromString(TEXT("StartingPosition")))
-			//	]
-			//]
-
-			//+ SVerticalBox::Slot()   //SaveLevel
-			//.VAlign(VAlign_Top)
-			//.HAlign(HAlign_Left)
-			//[
-			//	SNew(SButton)
-			//	.OnClicked(this, &SRPPButtonVBox::SaveLevel)
-			//	.Content()
-			//	[
-			//		SNew(STextBlock)
-			//		.Text(FText::FromString(TEXT("SaveLevel")))
-			//	]
-			//]
-
-			//+ SVerticalBox::Slot()   //LoadLevel
-			//.VAlign(VAlign_Top)
-			//.HAlign(HAlign_Left)
-			//[
-			//	SNew(SButton)
-			//	.OnClicked(this, &SRPPButtonVBox::LoadLevel)
-			//	.Content()
-			//	[
-			//		SNew(STextBlock)
-			//		.Text(FText::FromString(TEXT("LoadLevel")))
-			//	]
-			//]
 
 			+ SVerticalBox::Slot()   //RefreshRunningSpeed button
 			.VAlign(VAlign_Top)
@@ -143,29 +93,6 @@ FReply SRPPButtonVBox::ReloadWave()
 	return FReply::Unhandled();
 }
 
-//FReply SRPPButtonVBox::MarkTimeStamp()
-//{
-//	if (RPPMain)
-//	{
-//		URPPUtility::AddTimestamp(RPPMain->AudioCursor);
-//		return FReply::Handled();
-//	}
-//	return FReply::Unhandled();
-//}
-
-FReply SRPPButtonVBox::LoadLevel()
-{
-	URPPUtility::LoadLevel();
-	return FReply::Handled();
-}
-
-FReply SRPPButtonVBox::SaveLevel()
-{
-	URPPUtility::SaveLevel();
-	return FReply::Handled();
-
-}
-
 FReply SRPPButtonVBox::RefreshRunningSpeed()
 {
 	if (RPPMain)
@@ -186,22 +113,6 @@ FReply SRPPButtonVBox::ChangeBeatStartingTime()
 	}
 	return FReply::Unhandled();
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

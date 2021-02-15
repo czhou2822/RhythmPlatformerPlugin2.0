@@ -1,4 +1,6 @@
-// Fill out your copyright notice in the Description page of Project Settings.
+// Copyright Chenkai Zhou. All Rights Reserved.
+
+
 
 #pragma once
 
@@ -10,11 +12,6 @@
 //user include
 #include "RPPUtility.generated.h"
 
-/**
- * 
- */
-
-enum EDrawType { Header, Data, Footer };
 
 UCLASS()
 class MYSECONDPLUGIN_API URPPUtility : public UObject
@@ -39,10 +36,6 @@ public:
 	static TArray<float> BeatRawArray;    //Raw beat info; elements in second. for example, if BPM = 60, it shoud be [0,1,2,3,4,5...]
 	
 	static TArray<FVector2D> BeatDrawArray;	//BeatArray
-
-	static class UMySecondPluginTextRW* MySecondPluginTextRW;
-
-//	static class AMySecondPluginManager* MySecondPluginManager;
 
 	static class ARPPPluginManager* RPPPluginManager;
 
@@ -78,29 +71,12 @@ public:
 
 	static void RawDrawArrayToDrawArray(float CurrentCursor);
 
-	//static void RawDrawArrayToDrawArray(const int Start, const int End);
 
 	/*
 	generates elements for RawBeatArray
 	e.g., if bpm = 60, RawBeatArray = {0,1,2,3}
 	*/
 	static void CalculateRawBeatArray(const float& InBPM, const float& InAudioDuation, const float& InBeatStartingTime = 0.0f);
-
-	static void LoadLevel();
-
-    static void SaveLevel();
-
-//	static void AddTimestamp(float InAudioCursor);
-
-//	static void AddTimestamp(class AMySecondPluginTimestamp* InPluginTimestamp, UWorld* InWorld);
-
-	static void AddTimestamp(class ARPPEventBase* InPluginTimestamp);
-
-	static void DeleteTimestamp(int32 InEventID);
-
-//	static void SetPluginManager(AMySecondPluginManager* InMySecondPluginManager);
-
-//	static void RefreshRunSpeed(UWorld* InWorld, AMySecondPluginManager* InPluginManager);
 
 	static void RefreshRunSpeed();
 
@@ -114,9 +90,6 @@ public:
 
 	static void SetRPPPluginManager(ARPPPluginManager* InRPPPluginManager);
 
-	static void HandleOnEventPlaced(AActor* InActor);
-
-	static void HandleOnEventRemoved(int32 InEventID);
 
 
 };
