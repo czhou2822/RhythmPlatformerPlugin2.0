@@ -1,4 +1,5 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 
 #include "RPPMain.h"
@@ -15,6 +16,7 @@
 #include "MySecondPlugin.h"
 #include "RPPUtility.h"
 
+#define LOCTEXT_NAMESPACE "FMySecondPluginModule"
 
 
 
@@ -29,6 +31,8 @@ void SRPPMain::Construct(const FArguments& InArgs)
 	URPPUtility::WidgetHeight = InArgs._RPPHeight;
 
 	URPPUtility::WidgetWidth = InArgs._RPPWidth;
+
+	RPPPluginManager = InArgs._ExternalRPPPluginManager;
 
 	ChildSlot
 		[
@@ -80,7 +84,7 @@ void SRPPMain::Tick(const FGeometry& AllottedGeometry, const double InCurrentTim
 				AudioPercentage = AudioCursor / AudioDuration;
 			}
 
-			SnaplineCursor = (AudioPercentage * URPPUtility::DataDrawArray.Num());
+			SnaplineCursor = (AudioPercentage * URPPUtility::AudioDataDrawArray.Num());
 
 			UpdateCamaraLookAt();
 		}
@@ -105,7 +109,7 @@ void SRPPMain::UpdateCamaraLookAt()
 		/*change to start of window and end of window*/
 		//URPPUtility::RawDrawArrayToDrawArray(SnaplineCursor, NUMBER_OF_LINES_IN_WINDOW + SnaplineCursor);
 
-		URPPUtility::RawDrawArrayToDrawArray(AudioCursor);
+		URPPUtility::RawAudioDrawArrayToAudioDrawArray(AudioCursor);
 
 
 		EditorViewportClient->SetViewLocation(FVector(CameraStartingLocation.X + Delta, newLookAt.Y, newLookAt.Z));
@@ -178,32 +182,33 @@ void SRPPMain::Initilization()
 		UWorld* World = EditorViewportClient->GetWorld();
 		if (World)
 		{
+		//	TArray<AActor*> foundManager;
+		//	UGameplayStatics::GetAllActorsOfClass(World, ARPPPluginManager::StaticClass(), foundManager);
 
-			TArray<AActor*> foundManager;
-			UGameplayStatics::GetAllActorsOfClass(World, ARPPPluginManager::StaticClass(), foundManager);
-
-			if (foundManager.Num() == 1)
+		//	if (foundManager.Num() == 1)
+		//	{
+		//		RPPPluginManager = Cast<ARPPPluginManager>(foundManager[0]);
+		//		//plugin manager related settings 
+			if (RPPPluginManager)
 			{
-				RPPPluginManager = Cast<ARPPPluginManager>(foundManager[0]);
-				//plugin manager related settings 
-				if (RPPPluginManager)
+				if (ValidatePluginManager(RPPPluginManager))
 				{
-					if (ValidatePluginManager(RPPPluginManager))
+					SoundWave = (USoundWave*)RPPPluginManager->AudioTrack;
+					if (SoundWave)
 					{
-						SoundWave = (USoundWave*)RPPPluginManager->AudioTrack;
-						if (SoundWave)
-						{
-							AudioDuration = SoundWave->Duration;
-							AudioComponent = RPPPluginManager->PluginAudioPlayer;
-							AudioComponent->SetPaused(true);
-							AudioComponent->OnAudioPlaybackPercentNative.AddSP(this, &SRPPMain::HandleOnAudioPlaybackPercentNative);
-							URPPUtility::SetWorld(World);
-							ProcessSoundWave();
-						}
-						ResetViewport();
+						AudioDuration = SoundWave->Duration;
+						AudioComponent = RPPPluginManager->PluginAudioPlayer;
+						AudioComponent->SetSound(SoundWave);
+						AudioComponent->SetPaused(true);
+						AudioComponent->SetUISound(true);
+						AudioComponent->OnAudioPlaybackPercentNative.AddSP(this, &SRPPMain::HandleOnAudioPlaybackPercentNative);
+						URPPUtility::SetWorld(World);
+						ProcessSoundWave();
 					}
+					ResetViewport();
 				}
 			}
+	//		}
 		}
 	}
 }
@@ -263,7 +268,7 @@ int SRPPMain::GetZoomFactor()
 
 			URPPUtility::WindowLength = WindowLength;
 
-			ZoomFactor = WindowLength / (float)SoundWave->Duration * ((float)URPPUtility::DataRawArray.Num()) / NUMBER_OF_LINES_IN_WINDOW;
+			ZoomFactor = WindowLength / (float)SoundWave->Duration * ((float)URPPUtility::AudioDataRawArray.Num()) / NUMBER_OF_LINES_IN_WINDOW;
 
 			if (ZoomFactor >= 1)
 			{
@@ -279,9 +284,9 @@ void SRPPMain::ProcessZoom()
 {
 	ZoomFactor = GetZoomFactor();
 
-	URPPUtility::RawDataArrayToRawDrawArray(ZoomFactor);  //bucket size
+	URPPUtility::RawAudioDataArrayToRawAudioDrawArray(ZoomFactor);  //bucket size
 	//URPPUtility::RawDrawArrayToDrawArray(0, NUMBER_OF_LINES_IN_WINDOW);  //start, end
-	URPPUtility::RawDrawArrayToDrawArray(0);  //start, end
+	URPPUtility::RawAudioDrawArrayToAudioDrawArray(0);  //start, end
 
 }
 
@@ -324,12 +329,28 @@ bool SRPPMain::ValidatePluginManager(ARPPPluginManager* InRPPPluginManager)
 	{
 		if (!InRPPPluginManager->AudioTrack)
 		{
-			UE_LOG(LogRPP, Error, TEXT("Audio Track NULL!"))
+			UE_LOG(LogRPP, Error, TEXT("Audio Track NULL!"));
+
+			// Put your "OnButtonClicked" stuff here
+			FText DialogText = FText::Format(
+				LOCTEXT("FMySecondPluginModule", "Audio Track is not set!"),
+				FText::FromString(TEXT("SRPPMain::ValidatePluginManager")),
+				FText::FromString(TEXT("RPPMain.cpp"))
+			);
+			FMessageDialog::Open(EAppMsgType::Ok, DialogText);
+
 			return false;
 		}
 		if (!InRPPPluginManager->RunningSpeed)
 		{
-			UE_LOG(LogRPP, Warning, TEXT("Running Speed can't be 0."))
+			UE_LOG(LogRPP, Warning, TEXT("Running Speed can't be 0."));
+
+			FText DialogText = FText::Format(
+				LOCTEXT("FMySecondPluginModule", "Running Speed can't be 0!"),
+				FText::FromString(TEXT("SRPPMain::ValidatePluginManager")),
+				FText::FromString(TEXT("RPPMain.cpp"))
+			);
+			FMessageDialog::Open(EAppMsgType::Ok, DialogText);
 
 			return false;
 		}
@@ -371,6 +392,7 @@ void SRPPMain::TogglePlay()
 	}
 }
 
+#undef LOCTEXT_NAMESPACE 
 
 
 

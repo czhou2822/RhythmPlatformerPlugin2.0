@@ -1,4 +1,5 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 
 
@@ -26,11 +27,11 @@ public:
 	//waveform-related draw arrays
 	//wav data were loaded from file to DataRawArray
 	//program then process DataRawArray to DataDrawArray (such as average peak value), served as a base to DrawArray
-	static TArray<float> DataRawArray;    //Raw data from wave file   
+	static TArray<float> AudioDataRawArray;    //Raw data from wave file   
 
-	static TArray<float> DataDrawArray;   //RawDrawArray processed from RawDataArray, contain (RawDataArray.size()/bucketsize) elements
+	static TArray<float> AudioDataDrawArray;   //RawDrawArray processed from RawDataArray, contain (RawDataArray.size()/bucketsize) elements
 
-	static TArray<FVector2D> DrawArray;	//DrawArray
+	static TArray<FVector2D> AudioDrawArray;	//DrawArray
 
 	//beat grid-related arrays
 	static TArray<float> BeatRawArray;    //Raw beat info; elements in second. for example, if BPM = 60, it shoud be [0,1,2,3,4,5...]
@@ -65,11 +66,11 @@ public:
 
 	static void SetDataRawArray(USoundWave* SoundWave);
 
-	FORCEINLINE const TArray<FVector2D>& GetDrawArray() { return DrawArray; }
+	FORCEINLINE const TArray<FVector2D>& GetDrawArray() { return AudioDrawArray; }
 
-	static void RawDataArrayToRawDrawArray(int BucketSize);
+	static void RawAudioDataArrayToRawAudioDrawArray(int BucketSize);
 
-	static void RawDrawArrayToDrawArray(float CurrentCursor);
+	static void RawAudioDrawArrayToAudioDrawArray(float CurrentCursor);
 
 
 	/*

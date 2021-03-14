@@ -20,7 +20,8 @@
 		},
 		{
 			"Name": "MySecondPlugin",
-			"Enabled": true
+			"Enabled": true,
+			"MarketplaceURL": "com.epicgames.launcher://ue/marketplace/product/bba85ed8c1e14917b4c2d475ae51d6c5"
 		}
 	],
 	"TargetPlatforms": [

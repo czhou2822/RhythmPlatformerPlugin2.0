@@ -1,4 +1,4 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
 
 
 
@@ -109,58 +109,42 @@ For example, if there's beat at 3s and the window is 5s, it calculates beats wit
 Called every frames. */
 void SRPPWaveformCanvas::GetBeatGrid(float CurrentCursor)
 {
-
-	float Padding = 0;
-	float WindowLength = RPPMain->WindowLength;
-	float BorderUnitPerSecond = RPPMain->RPPPluginManager->RunningSpeed;
-	float AudioDuration = RPPMain->AudioDuration;
-	float LineHeight = 200;
-
-	float UnitPerSecond = URPPUtility::WidgetWidth / WindowLength ; //
-	float WidgetWidth = URPPUtility::WidgetWidth;
-
-	int32 StartingIndex = 1;
-	int32 LastXCord = 0;
-	float LowerBound = CurrentCursor - WindowLength / 2; //where beat grid starts to render. -> left side of the screen. 
-	float UpperBound = CurrentCursor + WindowLength / 2;
-
-	URPPUtility::BeatDrawArray.Empty();
-
-	//if (CurrentCursor < WindowLength / 2) //header presented
-	//{
-	//	LastXCord = LastXCord + (WindowLength / 2 - CurrentCursor) * BorderUnitPerSecond;
-	//}
-	//else if (CurrentCursor > AudioDuration)  //cursor is beyond audio file
-	//{
-	//	return;
-	//}
-	//else                                        //default
-	//{
-	//	while ((URPPUtility::BeatRawArray[StartingIndex] < (LowerBound)) && (StartingIndex < URPPUtility::BeatRawArray.Num()))
-	//	{
-	//		StartingIndex++;
-	//	}
-	//	//LastXCord = LastXCord + (URPPUtility::BeatRawArray[StartingIndex - 1] - (LowerBound)) * BorderUnitPerSecond;
-	//}
-
-	if (URPPUtility::BeatRawArray.Num() > 0)
+	if (RPPMain->RPPPluginManager && RPPMain->RPPPluginManager->BPM)
 	{
-		while ((StartingIndex < URPPUtility::BeatRawArray.Num()) && (URPPUtility::BeatRawArray[StartingIndex] < (LowerBound)))
+		float Padding = 0;
+		float WindowLength = RPPMain->WindowLength;
+		float BorderUnitPerSecond = RPPMain->RPPPluginManager->RunningSpeed;
+		float AudioDuration = RPPMain->AudioDuration;
+		float LineHeight = 200;
+
+		float UnitPerSecond = URPPUtility::WidgetWidth / WindowLength; //
+		float WidgetWidth = URPPUtility::WidgetWidth;
+
+		int32 StartingIndex = 1;
+		int32 LastXCord = 0;
+		float LowerBound = CurrentCursor - WindowLength / 2; //where beat grid starts to render. -> left side of the screen. 
+		float UpperBound = CurrentCursor + WindowLength / 2;
+
+		URPPUtility::BeatDrawArray.Empty();
+
+		if (URPPUtility::BeatRawArray.Num() > 0)
 		{
-			StartingIndex++;
-		}
+			while ((StartingIndex < URPPUtility::BeatRawArray.Num()) && (URPPUtility::BeatRawArray[StartingIndex] < (LowerBound)))
+			{
+				StartingIndex++;
+			}
 
-		while ((StartingIndex < URPPUtility::BeatRawArray.Num()) && (URPPUtility::BeatRawArray[StartingIndex] < UpperBound))
-		{
+			while ((StartingIndex < URPPUtility::BeatRawArray.Num()) && (URPPUtility::BeatRawArray[StartingIndex] < UpperBound))
+			{
 
-			float XTemp = (URPPUtility::BeatRawArray[StartingIndex] - LowerBound) * UnitPerSecond;
+				float XTemp = (URPPUtility::BeatRawArray[StartingIndex] - LowerBound) * UnitPerSecond;
 
-			URPPUtility::BeatDrawArray.Add(FVector2D(XTemp, Padding));   //top point
-			URPPUtility::BeatDrawArray.Add(FVector2D(XTemp, Padding) + FVector2D(0, LineHeight)); //bottom point
-			StartingIndex++;
+				URPPUtility::BeatDrawArray.Add(FVector2D(XTemp, Padding));   //top point
+				URPPUtility::BeatDrawArray.Add(FVector2D(XTemp, Padding) + FVector2D(0, LineHeight)); //bottom point
+				StartingIndex++;
+			}
 		}
 	}
-
 
 }
 
@@ -203,14 +187,17 @@ int32 SRPPWaveformCanvas::OnPaint(const FPaintArgs& Args, const FGeometry& Allot
 	FSlateDrawElement::MakeLines(OutDrawElements,   //render waveform
 		LayerId,
 		AllottedGeometry.ToPaintGeometry(),
-		URPPUtility::DrawArray,
+		URPPUtility::AudioDrawArray,
 		ESlateDrawEffect::None,
 		FLinearColor::Yellow,
 		true,
 		0.5f
 	);
 
-	SRPPWaveformCanvas::DrawBeatGrid(RPPMain->AudioCursor, AllottedGeometry, OutDrawElements, LayerId);
+	if (RPPMain->RPPPluginManager && RPPMain->RPPPluginManager->BPM)
+	{
+		SRPPWaveformCanvas::DrawBeatGrid(RPPMain->AudioCursor, AllottedGeometry, OutDrawElements, LayerId);
+	}
 
 	return SCompoundWidget::OnPaint(Args, AllottedGeometry, MyClippingRect, OutDrawElements, LayerId, InWidgetStyle, bParentEnabled);
 }

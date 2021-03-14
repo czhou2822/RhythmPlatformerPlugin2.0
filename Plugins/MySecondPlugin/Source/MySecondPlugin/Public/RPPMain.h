@@ -1,4 +1,5 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 
 #pragma once
@@ -25,6 +26,7 @@ public:
 	{}
 	SLATE_ARGUMENT(float, RPPWidth)
 		SLATE_ARGUMENT(float, RPPHeight)
+		SLATE_ARGUMENT(class ARPPPluginManager*, ExternalRPPPluginManager)
 		SLATE_END_ARGS()
 
 		/** Constructs this widget with InArgs */
@@ -64,10 +66,7 @@ public:
 
 	class FEditorViewportClient* EditorViewportClient;
 
-//	class AMySecondPluginManager* PluginManagerObject;
-
 	class ARPPPluginManager* RPPPluginManager;
-
 
 	float AudioCursor = 0.f;    //playtime of the track, in seconds
 

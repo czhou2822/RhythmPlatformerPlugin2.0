@@ -1,4 +1,5 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 #include "RPPUtility.h"
 
@@ -12,9 +13,9 @@
 #include "RPPGameModule/Public/RPPEventBase.h"
 
 
-TArray<float> URPPUtility::DataRawArray;    //Raw data from wave file   
-TArray<float> URPPUtility::DataDrawArray;   //RawDrawArray processed from RawDataArray, contain (RawDataArray.size()/bucketsize) elements
-TArray<FVector2D> URPPUtility::DrawArray;	//DrawArray
+TArray<float> URPPUtility::AudioDataRawArray;    //Raw data from wave file   
+TArray<float> URPPUtility::AudioDataDrawArray;   //RawDrawArray processed from RawDataArray, contain (RawDataArray.size()/bucketsize) elements
+TArray<FVector2D> URPPUtility::AudioDrawArray;	//DrawArray
 
 TArray<float> URPPUtility::BeatRawArray{ 0.f, 1.f, 2.f, 3.f, 4.f,5.f, 6.f, 7.f, 8.f, 9.f, 10.f };    //Raw beat info; elements in second. for example, if BPM = 60, it shoud be [0,1,2,3,4,5...]
 TArray<FVector2D> URPPUtility::BeatDrawArray;	//BeatArray
@@ -98,7 +99,9 @@ void URPPUtility::SetDataRawArray(USoundWave* SoundWave)
 {
 	if (SoundWave)
 	{
-		DataRawArray = WaveToRawDataArray(SoundWave);
+		AudioDataRawArray = WaveToRawDataArray(SoundWave);
+		URPPUtility::AudioDuration = SoundWave->Duration;
+
 	}
 }
 
@@ -108,9 +111,9 @@ void URPPUtility::SetDataRawArray(USoundWave* SoundWave)
  @param BucketSize, we only push the absolute max value in the bucket into the DrawArray.
  Therefore, by default, the size of RawDrawArray is (InputArray.size()/200)
 */
-void URPPUtility::RawDataArrayToRawDrawArray(int BucketSize)
+void URPPUtility::RawAudioDataArrayToRawAudioDrawArray(int BucketSize)
 {
-	DataDrawArray.Empty();
+	AudioDataDrawArray.Empty();
 
 	//float YOffset = Padding + BorderHeight / 2.f;
 
@@ -119,24 +122,19 @@ void URPPUtility::RawDataArrayToRawDrawArray(int BucketSize)
 		return;
 	}
 
-	//if (DrawArray.Num() != 0)
-	//{
-	//	return;
-	//}
-
 	float YOffset = WidgetHeight/2;
 
 	int InputArrayIndex = 0;
 	float AbsMax = 0;
-	int NumberOfBuckets = (DataRawArray.Num() - (DataRawArray.Num() % BucketSize)) / BucketSize;
-	if (DataRawArray.Num())
+	int NumberOfBuckets = (AudioDataRawArray.Num() - (AudioDataRawArray.Num() % BucketSize)) / BucketSize;
+	if (AudioDataRawArray.Num())
 	{
-		AbsMax = DataRawArray[0];
-		for (int i = 0; i < DataRawArray.Num(); i++)
+		AbsMax = AudioDataRawArray[0];
+		for (int i = 0; i < AudioDataRawArray.Num(); i++)
 		{
-			if (FMath::Abs(DataRawArray[i]) > AbsMax)
+			if (FMath::Abs(AudioDataRawArray[i]) > AbsMax)
 			{
-				AbsMax = DataRawArray[i];
+				AbsMax = AudioDataRawArray[i];
 			}
 		}
 	}
@@ -154,21 +152,21 @@ void URPPUtility::RawDataArrayToRawDrawArray(int BucketSize)
 
 		for (int j = 0; j < BucketSize; j++)      //absmax with bucket
 		{
-			if (FMath::Abs(DataRawArray[InputArrayIndex]) > Temp)
+			if (FMath::Abs(AudioDataRawArray[InputArrayIndex]) > Temp)
 			{
-				Temp = DataRawArray[InputArrayIndex];
+				Temp = AudioDataRawArray[InputArrayIndex];
 			}
 			InputArrayIndex++;
 		}
 		Temp = YOffset - (Temp * YScale);
-		DataDrawArray.Add(Temp);
+		AudioDataDrawArray.Add(Temp);
 	}
 
 
 }
 
 
-void URPPUtility::RawDrawArrayToDrawArray(float CurrentCursor)
+void URPPUtility::RawAudioDrawArrayToAudioDrawArray(float CurrentCursor)
 {
 
 	/*
@@ -198,22 +196,22 @@ void URPPUtility::RawDrawArrayToDrawArray(float CurrentCursor)
 	float Right = CurrentCursor + WindowLength * 0.5;
 
 
-	int LeftIndex = Left / AudioDuration * DataDrawArray.Num();
-	int RightIndex = Right / AudioDuration * DataDrawArray.Num();
+	int LeftIndex = Left / AudioDuration * AudioDataDrawArray.Num();
+	int RightIndex = Right / AudioDuration * AudioDataDrawArray.Num();
 
-	LeftIndex = FMath::Clamp<int>(LeftIndex, 0, DataDrawArray.Num()-1);
-	RightIndex = FMath::Clamp<int>(RightIndex, 0, DataDrawArray.Num()-1);
+	LeftIndex = FMath::Clamp<int>(LeftIndex, 0, AudioDataDrawArray.Num()-1);
+	RightIndex = FMath::Clamp<int>(RightIndex, 0, AudioDataDrawArray.Num()-1);
 
 
 	float LineStepSize = (WidgetWidth - XCord) / (RightIndex - LeftIndex); //
 
 
-	DrawArray.Empty();
+	AudioDrawArray.Empty();
 
 
-	while (LeftIndex < RightIndex && LeftIndex<DataDrawArray.Num())
+	while (LeftIndex < RightIndex && LeftIndex<AudioDataDrawArray.Num())
 	{
-		DrawArray.Add(FVector2D(XCord, DataDrawArray[LeftIndex]));
+		AudioDrawArray.Add(FVector2D(XCord, AudioDataDrawArray[LeftIndex]));
 		XCord += (float)LineStepSize;
 		LeftIndex++;
 	}
@@ -231,8 +229,6 @@ void URPPUtility::CalculateRawBeatArray(const float& InBPM, const float& InAudio
 	if (InBPM)
 	{
 		URPPUtility::BeatRawArray.Add(0.f);
-
-		URPPUtility::AudioDuration = InAudioDuration;
 
 		float NextBeatTime = 0.f + InBeatStartingTime;
 
@@ -295,16 +291,13 @@ void URPPUtility::RefreshRunSpeed()
 
 void URPPUtility::ClearEverything()
 {
-	URPPUtility::DataRawArray.Empty();    
-	URPPUtility::DataDrawArray.Empty();   
-	URPPUtility::DrawArray.Empty();	
-
+	URPPUtility::AudioDataRawArray.Empty();    
+	URPPUtility::AudioDataDrawArray.Empty();   
+	URPPUtility::AudioDrawArray.Empty();	
 	URPPUtility::BeatRawArray.Empty();    
 	URPPUtility::BeatDrawArray.Empty();	
 
-
 	URPPUtility::EditorViewportClient = nullptr;
-
 	URPPUtility::RPPPluginManager = nullptr;
 
 

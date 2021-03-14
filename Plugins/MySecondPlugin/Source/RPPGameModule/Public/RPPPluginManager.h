@@ -1,4 +1,4 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
 
 
 #pragma once
@@ -24,7 +24,7 @@ public:
 	
 	FOnRPPEventRemoved OnRPPEventRemoved;
 
-	UPROPERTY(VisibleDefaultsOnly, BlueprintReadWrite, Category = "RPPPlugin")
+	UPROPERTY(BlueprintReadWrite, Category = "RPPPlugin")
 	class UAudioComponent* PluginAudioPlayer;
 
 	UPROPERTY(EditAnywhere, BlueprintReadWrite, Category = "RPPPlugin")

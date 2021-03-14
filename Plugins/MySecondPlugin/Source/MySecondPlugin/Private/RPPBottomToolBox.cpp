@@ -1,4 +1,5 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 //user includes
 #include "RPPBottomToolBox.h"

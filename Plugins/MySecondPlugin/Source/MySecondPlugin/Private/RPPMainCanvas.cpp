@@ -1,9 +1,9 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
+
 
 
 #include "RPPMainCanvas.h"
 #include "RPPUtility.h"
-
 
 
 

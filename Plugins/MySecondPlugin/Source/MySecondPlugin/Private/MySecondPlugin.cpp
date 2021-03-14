@@ -1,4 +1,4 @@
-// Copyright Chenkai Zhou. All Rights Reserved.
+// Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
 
 #include "MySecondPlugin.h"
 #include "MySecondPluginStyle.h"
@@ -6,6 +6,8 @@
 #include "Misc/MessageDialog.h"
 #include "Framework/MultiBox/MultiBoxBuilder.h"
 #include "IAssetViewport.h"
+#include "Kismet/GameplayStatics.h"
+#include "RPPGameModule/Public/RPPPluginManager.h"
 #include "LevelEditor.h"
 
 static const FName MySecondPluginTabName("RPP");
@@ -67,20 +69,47 @@ void FMySecondPluginModule::PluginButtonClicked()
 
 	int32 Height = GEditor->GetActiveViewport()->GetSizeXY().Y;
 
-	if (RPPMain == nullptr)
+	UWorld* World = GEditor->GetActiveViewport()->GetClient()->GetWorld();
+	if (World)
 	{
-		RPPMain = SNew(SRPPMain)
-			.RPPWidth(Width * 0.8)
-			.RPPHeight(Height * 0.4);
+		TArray<AActor*> foundManager;
+		UGameplayStatics::GetAllActorsOfClass(World, ARPPPluginManager::StaticClass(), foundManager);
 
-		LevelEditorModule.GetFirstActiveViewport()->AddOverlayWidget(RPPMain.ToSharedRef());
-		bSMyWidgetInitilized = true;
+		if (foundManager.Num() == 1)
+		{
+			ARPPPluginManager* RPPPluginManager = Cast<ARPPPluginManager>(foundManager[0]);
+			if (RPPMain == nullptr && RPPPluginManager)
+			{
+				RPPMain = SNew(SRPPMain)
+					.ExternalRPPPluginManager(RPPPluginManager)
+					.RPPWidth(Width * 0.8)
+					.RPPHeight(Height * 0.4);
+
+
+				LevelEditorModule.GetFirstActiveViewport()->AddOverlayWidget(RPPMain.ToSharedRef());
+				bSMyWidgetInitilized = true;
+			}
+			else
+			{
+				LevelEditorModule.GetFirstActiveViewport()->RemoveOverlayWidget(RPPMain.ToSharedRef());
+				RPPMain.Reset();
+			}
+		}
+		else
+		{
+			// Put your "OnButtonClicked" stuff here
+			FText DialogText = FText::Format(
+				LOCTEXT("FMySecondPluginModule", "Did not find plugin manager in scene!"),
+				FText::FromString(TEXT("FMySecondPluginModule::PluginButtonClicked")),
+				FText::FromString(TEXT("MySecondPlugin.cpp"))
+			);
+			FMessageDialog::Open(EAppMsgType::Ok, DialogText);
+		}
 	}
-	else
-	{
-		LevelEditorModule.GetFirstActiveViewport()->RemoveOverlayWidget(RPPMain.ToSharedRef());
-		RPPMain.Reset();
-	}
+
+
+
+
 
 
 
