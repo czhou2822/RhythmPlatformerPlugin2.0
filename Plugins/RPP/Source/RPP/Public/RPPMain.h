@@ -24,9 +24,9 @@ public:
 
 	SLATE_BEGIN_ARGS(SRPPMain)
 	{}
-	SLATE_ARGUMENT(float, RPPWidth)
-		SLATE_ARGUMENT(float, RPPHeight)
-		SLATE_ARGUMENT(class ARPPPluginManager*, ExternalRPPPluginManager)
+	SLATE_ARGUMENT(float, RPPWidth)  //pass in widget width
+		SLATE_ARGUMENT(float, RPPHeight) //pass in widget height
+		SLATE_ARGUMENT(class ARPPPluginManager*, ExternalRPPPluginManager) //pass in plugin manager found in scene
 		SLATE_END_ARGS()
 
 		/** Constructs this widget with InArgs */
@@ -34,23 +34,24 @@ public:
 
 private:
 
-	bool bIsValidated = false;
+	
+	bool bIsValidated = false;  //whether plugin in running correctly, if not, Tick will be return
 
 	float OrthoZoom = 0.f;
 
 	class URPPUtility* RPPUtil;
 
 	class UAudioComponent* AudioComponent;
-
-	float AudioPercentage = 0.f;
+ 
+	float AudioPercentage = 0.f;  //percentage of audio played.
 
 	bool bIsPlaying = false;      //is track playing
 
 	float LastPausePercentage = 0.f;  //played percentage since last paused
 
-	int32 SnaplineCursor = 0; //index of the RawDrawArray. 
+	int32 SnaplineCursor = 0; //index of the RawDrawArray / current location in the DrawArray
 
-	const int32 NUMBER_OF_LINES_IN_WINDOW = 10000; //how many lines in waveform
+	const int32 NUMBER_OF_LINES_IN_WINDOW = 10000; //how many lines we used to construct waveform
 
 	int32 ZoomFactor = 5;      //how many samples in each bucket, for example, if this is 32, RawDrawArray takes ONE peak value out of 32 in RawDataArray
 
@@ -72,7 +73,7 @@ public:
 
 	float WindowLength = 0.f;	//how many time repersented in width 
 
-	float AudioDuration = 0.f;
+	float AudioDuration = 0.f;  
 
 
 private:
@@ -108,13 +109,9 @@ public:
 
 	void ProcessZoom();
 
-	void OnEditorCameraMoved(const FVector& InFVector, const FRotator& InRotator, ELevelViewportType InViewportType, int32 InInt);
+	//void OnEditorCameraMoved(const FVector& InFVector, const FRotator& InRotator, ELevelViewportType InViewportType, int32 InInt);
 
-	void HandleOnNewActorsDropped(const TArray<UObject*>& InUObjects, const TArray<AActor*>& InAActors);
-
-	void HandleOnNewRPPEventPlaced(int32 InRPPID);
-
-	void HandleOnNewRPPEventRemoved(int32 InRPPID);
+	//void HandleOnNewActorsDropped(const TArray<UObject*>& InUObjects, const TArray<AActor*>& InAActors);
 
 	bool ValidatePluginManager(ARPPPluginManager* RPPPluginManager);
 

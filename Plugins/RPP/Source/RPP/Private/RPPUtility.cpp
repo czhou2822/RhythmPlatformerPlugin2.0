@@ -1,14 +1,13 @@
 // Copyright 2019 - 2021, Chenkai Zhou, Rhythm Platformer Plugin, All Rights Reserved.
 
-
+//engine includes
 #include "RPPUtility.h"
-
 #include "EditorViewportClient.h"
 #include "Kismet/GameplayStatics.h"
 #include "Engine/World.h"
 
 
-
+//user includes
 #include "RPPGameModule/Public/RPPPluginManager.h"
 #include "RPPGameModule/Public/RPPEventBase.h"
 
@@ -38,10 +37,6 @@ UWorld* URPPUtility::World = nullptr;
 URPPUtility::URPPUtility()
 {
 
-	if (GetWorld())
-	{
-
-	}
 
 }
 

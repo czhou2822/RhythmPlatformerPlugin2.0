@@ -36,6 +36,7 @@ void SRPPMain::Construct(const FArguments& InArgs)
 
 	ChildSlot
 		[
+			//construct ButtonVBox
 			SNew(SOverlay)
 			+SOverlay::Slot()
 			.HAlign(HAlign_Left)
@@ -45,6 +46,7 @@ void SRPPMain::Construct(const FArguments& InArgs)
 				SAssignNew(RPPButtonVBox, SRPPButtonVBox)
 				.RhythmPlatformingPluginMain(this)
 			]
+			//construct MainCanvas
 			+ SOverlay::Slot()
 			.HAlign(HAlign_Center)
 			.VAlign(VAlign_Fill)
@@ -69,7 +71,7 @@ void SRPPMain::Tick(const FGeometry& AllottedGeometry, const double InCurrentTim
 
 		//process zoom
 		{
-			if (EditorViewportClient->GetOrthoZoom() != OrthoZoom)   //zoom happened
+			if (EditorViewportClient->GetOrthoZoom() != OrthoZoom)   //if zoom happened
 			{
 				OrthoZoom = EditorViewportClient->GetOrthoZoom();
 				ProcessZoom();                                       //recalculate zoom and display
@@ -77,69 +79,61 @@ void SRPPMain::Tick(const FGeometry& AllottedGeometry, const double InCurrentTim
 		}
 
 		//update look at
-		{
+		{ 
+			//if audio is paused, use viewport camera to update audio percentage
 			if ((AudioComponent->bIsPaused) /*&& (AudioPercentage <= 1)*/)
 			{
 				AudioCursor = (EditorViewportClient->GetViewLocation().X - CameraStartingLocation.X) / RPPPluginManager->RunningSpeed;
 				AudioPercentage = AudioCursor / AudioDuration;
 			}
 
+			//at last, pass updated AudioPercentage to update lookat
 			SnaplineCursor = (AudioPercentage * URPPUtility::AudioDataDrawArray.Num());
 
 			UpdateCamaraLookAt();
 		}
 	}
 
-
-
-
-
-
 }
 
 void SRPPMain::UpdateCamaraLookAt()
 {
+	//client could be null
 	if (EditorViewportClient)
 	{
 		FVector newLookAt = EditorViewportClient->GetViewLocation();
 
+		//calculate the offset from 0 to current location in UE unit
+		//e.g. AudioCursor = 3, RunningSpeed = 600; delta = 1800
 		float Delta = AudioCursor * RPPPluginManager->RunningSpeed;
 
-
-		/*change to start of window and end of window*/
-		//URPPUtility::RawDrawArrayToDrawArray(SnaplineCursor, NUMBER_OF_LINES_IN_WINDOW + SnaplineCursor);
-
+		//resample audio draw array based on new audio location
 		URPPUtility::RawAudioDrawArrayToAudioDrawArray(AudioCursor);
 
-
+		//set lookat location
 		EditorViewportClient->SetViewLocation(FVector(CameraStartingLocation.X + Delta, newLookAt.Y, newLookAt.Z));
-
 
 	}
 }
 
 void SRPPMain::HandleOnAudioPlaybackPercentNative(const UAudioComponent* InAudioComponent, const USoundWave* PlayingSoundWave, const float PlaybackPercent)
 {
-	//this API returns the playback percent SINCE LAST PLAY/PAUSE
-	//e.g. the playback percent resets to 0 whenever paused
-
-
-
-	if (InAudioComponent->bIsPaused)    //while audio is paused
+	//ue4 api
+	if (InAudioComponent->bIsPaused)    //while audio is paused, use cached data
 	{
 		LastPausePercentage = AudioPercentage;
 	}
 	else
 	{
-		AudioPercentage = PlaybackPercent /*+ LastPausePercentage*/;
+		AudioPercentage = PlaybackPercent;   //else use feed in data
 		AudioCursor = AudioPercentage * AudioDuration;
 	}
 
+	//playback time in second
 	float PlaybackTime = AudioPercentage * AudioDuration;
+	//calculate offset based on running speed and playback time
 	float PlayerLocation = PlaybackTime * (float)RPPPluginManager->RunningSpeed;
 	//UE_LOG(LogRPP, Warning, TEXT("Percent: %s, PlaybackTime: %s"), *FString::SanitizeFloat(AudioPercentage), *FString::SanitizeFloat(PlaybackTime));
-
-
 }
 
 void SRPPMain::ChangePlaybackSpeed(float InFloat)
@@ -171,29 +165,22 @@ void SRPPMain::Initilization()
 
 	if (EditorViewportClient)
 	{
-
+		//default zoom level
 		OrthoZoom = EditorViewportClient->GetOrthoZoom();
 
+		//default camera location
 		CameraStartingLocation = EditorViewportClient->GetViewLocation();   //get default location of the camera, mainly for y and z as x will be override by tick shortly
 
-		FEditorDelegates::OnEditorCameraMoved.AddSP(this, &SRPPMain::OnEditorCameraMoved);
-//		FEditorDelegates::OnNewActorsDropped.AddSP(this, &SRPPMain::HandleOnNewActorsDropped);
+		//FEditorDelegates::OnEditorCameraMoved.AddSP(this, &SRPPMain::OnEditorCameraMoved);
 
 		UWorld* World = EditorViewportClient->GetWorld();
 		if (World)
 		{
-		//	TArray<AActor*> foundManager;
-		//	UGameplayStatics::GetAllActorsOfClass(World, ARPPPluginManager::StaticClass(), foundManager);
-
-		//	if (foundManager.Num() == 1)
-		//	{
-		//		RPPPluginManager = Cast<ARPPPluginManager>(foundManager[0]);
-		//		//plugin manager related settings 
 			if (RPPPluginManager)
 			{
-				if (ValidatePluginManager(RPPPluginManager))
+				if (ValidatePluginManager(RPPPluginManager))  //if plugin is valid
 				{
-					SoundWave = (USoundWave*)RPPPluginManager->AudioTrack;
+					SoundWave = (USoundWave*)RPPPluginManager->AudioTrack;  //get soundtrack
 					if (SoundWave)
 					{
 						AudioDuration = SoundWave->Duration;
@@ -202,13 +189,12 @@ void SRPPMain::Initilization()
 						AudioComponent->SetPaused(true);
 						AudioComponent->SetUISound(true);
 						AudioComponent->OnAudioPlaybackPercentNative.AddSP(this, &SRPPMain::HandleOnAudioPlaybackPercentNative);
-						URPPUtility::SetWorld(World);
-						ProcessSoundWave();
+						URPPUtility::SetWorld(World);   //pass world to RPPUtility
+						ProcessSoundWave();             //read-in, compress and cache audio data
 					}
 					ResetViewport();
 				}
 			}
-	//		}
 		}
 	}
 }
@@ -221,12 +207,9 @@ void SRPPMain::ProcessSoundWave()
 		URPPUtility::SetDataRawArray(SoundWave);
 		URPPUtility::CalculateRawBeatArray(RPPPluginManager->BPM, SoundWave->Duration, RPPPluginManager->BeatStartingTime);
 		URPPUtility::SetEditorViewportClient(EditorViewportClient);
-
 		URPPUtility::SetRPPPluginManager(RPPPluginManager);
 
 		ProcessZoom();
-
-
 	}
 	else
 	{
@@ -259,10 +242,8 @@ int SRPPMain::GetZoomFactor()
 			FVector WorldRPosTemp;
 
 			SceneView->DeprojectFVector2D(FVector2D(0, Height / 2), WorldLPosTemp, WorldDirectTemp);
-			//UE_LOG(LogTemp, Warning, TEXT("Pos: %s, Dir: %s"), *WorldLPosTemp.ToString(), *WorldDirectTemp.ToString());
 
 			SceneView->DeprojectFVector2D(FVector2D(Width, Height / 2), WorldRPosTemp, WorldDirectTemp);
-			//UE_LOG(LogTemp, Warning, TEXT("Pos: %s, Dir: %s"), *WorldRPosTemp.ToString(), *WorldDirectTemp.ToString());
 
 			WindowLength = (FMath::Abs(WorldRPosTemp.X - WorldLPosTemp.X)) / RPPPluginManager->RunningSpeed;
 
@@ -285,48 +266,39 @@ void SRPPMain::ProcessZoom()
 	ZoomFactor = GetZoomFactor();
 
 	URPPUtility::RawAudioDataArrayToRawAudioDrawArray(ZoomFactor);  //bucket size
-	//URPPUtility::RawDrawArrayToDrawArray(0, NUMBER_OF_LINES_IN_WINDOW);  //start, end
 	URPPUtility::RawAudioDrawArrayToAudioDrawArray(0);  //start, end
 
 }
 
-void SRPPMain::OnEditorCameraMoved(const FVector& InFVector, const FRotator& InRotator, ELevelViewportType InViewportType, int32 InInt)
-{
-	UE_LOG(LogTemp, Warning, TEXT("Pos: %s, Dir: %i"), *InFVector.ToString(), InInt);
+//void SRPPMain::OnEditorCameraMoved(const FVector& InFVector, const FRotator& InRotator, ELevelViewportType InViewportType, int32 InInt)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("Pos: %s, Dir: %i"), *InFVector.ToString(), InInt);
+//
+//}
 
-}
+//void SRPPMain::HandleOnNewActorsDropped(const TArray<UObject*>& InUObjects, const TArray<AActor*>& InAActors)
+//{
+//	UE_LOG(LogTemp, Warning, TEXT("OnNewActorsDropped event"));
+//
+//	for (auto& Tmp : InAActors)
+//	{
+//		ARPPEventBase* NewEventBase = Cast<ARPPEventBase>(Tmp);
+//		if (NewEventBase)
+//		{
+//			UE_LOG(LogTemp, Warning, TEXT("Catch an event actor"));
+//		}
+//	}
+//}
 
-void SRPPMain::HandleOnNewActorsDropped(const TArray<UObject*>& InUObjects, const TArray<AActor*>& InAActors)
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnNewActorsDropped event"));
-
-	for (auto& Tmp : InAActors)
-	{
-		ARPPEventBase* NewEventBase = Cast<ARPPEventBase>(Tmp);
-		if (NewEventBase)
-		{
-			UE_LOG(LogTemp, Warning, TEXT("Catch an event actor"));
-		}
-	}
-
-
-}
-
-void SRPPMain::HandleOnNewRPPEventPlaced(int32 InRPPID)
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnNewRPPEventPlaced: %i"), InRPPID);
-
-}
-
-void SRPPMain::HandleOnNewRPPEventRemoved(int32 InRPPID)
-{
-	UE_LOG(LogTemp, Warning, TEXT("OnNewRPPEventRemoved: %i"), InRPPID);
-}
-
+/*
+* ensure all vital parameter are set (soundtrack and player running speed)
+* 
+*/
 bool SRPPMain::ValidatePluginManager(ARPPPluginManager* InRPPPluginManager)
 {
 	if (InRPPPluginManager)
 	{
+		//check sound track
 		if (!InRPPPluginManager->AudioTrack)
 		{
 			UE_LOG(LogRPP, Error, TEXT("Audio Track NULL!"));
@@ -341,6 +313,7 @@ bool SRPPMain::ValidatePluginManager(ARPPPluginManager* InRPPPluginManager)
 
 			return false;
 		}
+		//check running speed
 		if (!InRPPPluginManager->RunningSpeed)
 		{
 			UE_LOG(LogRPP, Warning, TEXT("Running Speed can't be 0."));
@@ -361,6 +334,7 @@ bool SRPPMain::ValidatePluginManager(ARPPPluginManager* InRPPPluginManager)
 	return false;
 }
 
+//reset viewport to default positon (to the beginning of the sound track)
 void SRPPMain::ResetViewport()
 {
 	AudioCursor = 0.f;
@@ -393,7 +367,6 @@ void SRPPMain::TogglePlay()
 }
 
 #undef LOCTEXT_NAMESPACE 
-
 
 
 END_SLATE_FUNCTION_BUILD_OPTIMIZATION
